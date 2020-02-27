@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace PictuComposite.Properties
+namespace PictureComposite.Properties
 {
 
 
