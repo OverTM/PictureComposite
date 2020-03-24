@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Microsoft.VisualBasic;
 
 namespace PictureComposite
 {
@@ -18,6 +19,9 @@ namespace PictureComposite
             checkBox1.Checked = true;
         }
 
+        int FullSizeW = 1024, FullSizeH = 838;
+        int CutOutStartLocationX = 840, CutOutStartLocationY = 270;
+        int CutOutEndLocationX = 1015, CutOutEndLocationY = 322;
         string PictureUnder = string.Empty;
 
         private void button1_Click(object sender, EventArgs e)
@@ -40,19 +44,12 @@ namespace PictureComposite
                     this.label1.Text = "処理中です";
                     foreach (var file in openFileDialog1.FileNames)
                     {
-                        Bitmap srcBmp = new Bitmap(file);
-                        Bitmap dstBmp = srcBmp.Clone(new Rectangle(0, 0, 1920, 800), srcBmp.PixelFormat);
-                        string[] path = file.Split('.');
-                        dstBmp.Save(string.Format(path[0] + "_上" + "." + path[1]));
-                        srcBmp.Dispose();
-                        dstBmp.Dispose();
-
-                        Image img1 = Image.FromFile(path[0] + "_上" + "." + path[1]);
+                        Image img1 = Image.FromFile(file);
                         Bitmap map1 = new Bitmap(img1);
                         Image img2 = Image.FromFile(PictureUnder);
                         Bitmap map2 = new Bitmap(img2);
-                        var width = Math.Max(img1.Width, img2.Width);
-                        var height = img1.Height + img2.Height + 10;
+                        var width = FullSizeW;
+                        var height = FullSizeH;
                         // 初始化画布(最终的拼图画布)并设置宽高
                         Bitmap bitMap = new Bitmap(width, height);
                         // 初始化画板
@@ -62,10 +59,11 @@ namespace PictureComposite
                         //在x=0，y=0处画上图一
                         g1.DrawImage(map1, 0, 0, img1.Width, img1.Height);
                         //在x=0，y在图一下处画上图二
-                        g1.DrawImage(map2, 0, img1.Height, img2.Width, img2.Height);
+                        g1.DrawImage(map2, CutOutStartLocationX, CutOutStartLocationY, img2.Width, img2.Height);
                         Image img = bitMap;
                         //保存
-                        img.Save(path[0] + "_係員" + "." + path[1]);
+                        string SavePath1 = Path.GetDirectoryName(file) + "\\" + Path.GetFileNameWithoutExtension(file) + "_处理完成" + Path.GetExtension(file);
+                        img.Save(SavePath1);
 
                         map1.Dispose();
                         map2.Dispose();
@@ -73,9 +71,8 @@ namespace PictureComposite
                         img2.Dispose();
                         if (checkBox1.Checked == true)
                         {
-                            File.Delete(path[0] + "_上" + "." + path[1]);
                             File.Delete(file);
-                            File.Move(path[0] + "_係員" + "." + path[1], file);
+                            File.Move(SavePath1, file);
                         }
                     }
                     this.label1.ForeColor = System.Drawing.Color.Green;
@@ -110,17 +107,19 @@ namespace PictureComposite
 
         private string Picture2(string fi)
         {
+            string SavePath = Path.GetDirectoryName(fi) + "\\" + "模板" + "_裁剪" + Path.GetExtension(fi);
             Bitmap srcBmp = new Bitmap(fi);
-            Bitmap dstBmp = srcBmp.Clone(new Rectangle(0, 800, 1920, 280), srcBmp.PixelFormat);
-            string[] path = fi.Split('.');
-            dstBmp.Save(string.Format(path[0] + "_下" + "." + path[1]));
+            Bitmap dstBmp = srcBmp.Clone(new Rectangle(CutOutStartLocationX, CutOutStartLocationY,
+                CutOutEndLocationX - CutOutStartLocationX, CutOutEndLocationY - CutOutStartLocationY), srcBmp.PixelFormat);
+            dstBmp.Save(SavePath);
             srcBmp.Dispose();
-            if (checkBox1.Checked == true)
-            {
-                File.Delete(fi);
-            }
+            //if (checkBox1.Checked == true)
+            //{
+            //    File.Delete(fi);
+            //}
+            File.Move(fi, fi.Replace(Path.GetFileNameWithoutExtension(fi), "模板"));
             dstBmp.Dispose();
-            return path[0] + "_下" + "." + path[1];
+            return SavePath;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -135,6 +134,31 @@ namespace PictureComposite
             {
                 this.label1.ForeColor = System.Drawing.Color.Gray;
                 this.label1.Text = "テンプレートが選択しました";
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            string Settings = Interaction.InputBox(string.Format("请在一行内按以下格式输入（中间用空格或逗号隔开）\n\n  图片宽,\n  图片高,\n  模板图片裁剪起始位置X轴," +
+                "\n  模板图片裁剪起始位置Y轴,\n  模板图片裁剪结束位置X轴,\n  模板图片裁剪结束位置Y轴"), "图片尺寸与位置设置",
+                string.Format("{0}　{1}　{2}　{3}　{4}　{5}",
+                FullSizeW.ToString(), FullSizeH.ToString(), CutOutStartLocationX.ToString(),
+                CutOutStartLocationY.ToString(), CutOutEndLocationX.ToString(), CutOutEndLocationY.ToString()), -1, -1);
+            try
+            {
+                string[] str = Settings.Split(' ', ',', '，','　');
+                str = str.Where(s => !string.IsNullOrEmpty(s)).ToArray();//去掉空字符串
+
+                FullSizeW = int.Parse(str[0]);
+                FullSizeH = int.Parse(str[1]);
+                CutOutStartLocationX = int.Parse(str[2]);
+                CutOutStartLocationY = int.Parse(str[3]);
+                CutOutEndLocationX = int.Parse(str[4]);
+                CutOutEndLocationY = int.Parse(str[5]);
+            }
+            catch
+            {
+                MessageBox.Show("输入无效！");
             }
         }
     }
