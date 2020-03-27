@@ -28,11 +28,11 @@ namespace PictureComposite
         {
             if (PictureUnder == string.Empty)
             {
-                MessageBox.Show("テンプレートを先に選択してください");
+                MessageBox.Show("请先选择模板");
             }
             else
             {
-                openFileDialog1.Title = "処理したいイメージを選択してください";
+                openFileDialog1.Title = "请选择需要处理的图片";
                 openFileDialog1.Filter = "イメージ|*.jpg;*.gif;*.png;*.bmp|任意（*.*）|*.*";
                 openFileDialog1.FileName = "";
                 //openFileDialog1.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
@@ -41,7 +41,7 @@ namespace PictureComposite
                 if (openFileDialog1.ShowDialog() == DialogResult.OK)
                 {
                     this.label1.ForeColor = System.Drawing.Color.Goldenrod;
-                    this.label1.Text = "処理中です";
+                    this.label1.Text = "処理中";
                     foreach (var file in openFileDialog1.FileNames)
                     {
                         Image img1 = Image.FromFile(file);
@@ -76,7 +76,7 @@ namespace PictureComposite
                         }
                     }
                     this.label1.ForeColor = System.Drawing.Color.Green;
-                    this.label1.Text = "処理が完了しました";
+                    this.label1.Text = "处理完成";
                     this.timer1.Enabled = true;
                 }
             }
@@ -84,8 +84,8 @@ namespace PictureComposite
 
         private void button2_Click(object sender, EventArgs e)
         {
-            openFileDialog1.Title = "テンプレートを選択してください";
-            openFileDialog1.Filter = "イメージ|*.jpg;*.gif;*.png;*.bmp|任意（*.*）|*.*";
+            openFileDialog1.Title = "请选择模板";
+            openFileDialog1.Filter = "图片文件|*.jpg;*.gif;*.png;*.bmp|任意文件（*.*）|*.*";
             openFileDialog1.FileName = "";
             openFileDialog1.CheckFileExists = true;
             openFileDialog1.Multiselect = false;
@@ -96,9 +96,9 @@ namespace PictureComposite
                     PictureUnder = Picture2(file);
                 }
             }
-            this.button2.Text = "テンプレートが\n選択しました";
+            this.button2.Text = "已选择模板";
             this.label1.ForeColor = System.Drawing.Color.Gray;
-            this.label1.Text = "テンプレートが選択しました";
+            this.label1.Text = "已选择模板";
         }
 
         private void Picture1(string fi)
@@ -128,12 +128,12 @@ namespace PictureComposite
             if (PictureUnder==string.Empty)
             {
                 this.label1.ForeColor = System.Drawing.Color.Red;
-                this.label1.Text = "処理するイメージを選択する前に\r\nテンプレートを選択してください";
+                this.label1.Text = "请先选择模板";
             }
             else
             {
                 this.label1.ForeColor = System.Drawing.Color.Gray;
-                this.label1.Text = "テンプレートが選択しました";
+                this.label1.Text = "已选择模板";
             }
         }
 
@@ -158,7 +158,7 @@ namespace PictureComposite
             }
             catch
             {
-                MessageBox.Show("输入无效！");
+                MessageBox.Show("部分输入无效，请重新输入！");
             }
         }
     }
