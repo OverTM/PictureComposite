@@ -40,8 +40,20 @@ namespace PictureComposite
                 openFileDialog1.Multiselect = true;
                 if (openFileDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    this.label1.ForeColor = System.Drawing.Color.Goldenrod;
-                    this.label1.Text = "処理中";
+                    this.button1.ForeColor = Color.Red;
+                    this.button1.Text = "处理中";
+                    this.button1.Refresh();
+                    //进度条初始化
+                    int fileCount = openFileDialog1.FileNames.Length;
+                    this.progressBar1.Value = 0;
+                    this.progressBar1.Style = ProgressBarStyle.Blocks;
+                    this.progressBar1.Maximum = fileCount;
+                    this.progressBar1.Minimum = 0;
+                    this.progressBar1.MarqueeAnimationSpeed = 1;
+                    this.progressBar1.Step = 1;
+                    this.label2.Text = "0%";
+                    this.label2.Refresh();
+
                     foreach (var file in openFileDialog1.FileNames)
                     {
                         Image img1 = Image.FromFile(file);
@@ -74,10 +86,16 @@ namespace PictureComposite
                             File.Delete(file);
                             File.Move(SavePath1, file);
                         }
+
+                        this.progressBar1.PerformStep();
+                        //this.progressBar1.Refresh();
+                        double dCount = fileCount, dProg = this.progressBar1.Value;
+                        double value = Math.Round((dProg / dCount) * 100, 1);
+                        this.label2.Text = value.ToString() + "%";
+                        this.label2.Refresh();
                     }
-                    this.label1.ForeColor = System.Drawing.Color.Green;
-                    this.label1.Text = "处理完成";
-                    this.timer1.Enabled = true;
+                    this.button1.ForeColor = Color.Black;
+                    this.button1.Text = "选择图片";
                 }
             }
         }
@@ -95,10 +113,8 @@ namespace PictureComposite
                 {
                     PictureUnder = Picture2(file);
                 }
+                this.button2.Text = "已选择模板";
             }
-            this.button2.Text = "已选择模板";
-            this.label1.ForeColor = System.Drawing.Color.Gray;
-            this.label1.Text = "已选择模板";
         }
 
         private void Picture1(string fi)
@@ -120,21 +136,6 @@ namespace PictureComposite
             File.Move(fi, fi.Replace(Path.GetFileNameWithoutExtension(fi), "模板"));
             dstBmp.Dispose();
             return SavePath;
-        }
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            this.timer1.Enabled = false;
-            if (PictureUnder==string.Empty)
-            {
-                this.label1.ForeColor = System.Drawing.Color.Red;
-                this.label1.Text = "请先选择模板";
-            }
-            else
-            {
-                this.label1.ForeColor = System.Drawing.Color.Gray;
-                this.label1.Text = "已选择模板";
-            }
         }
 
         private void button3_Click(object sender, EventArgs e)
